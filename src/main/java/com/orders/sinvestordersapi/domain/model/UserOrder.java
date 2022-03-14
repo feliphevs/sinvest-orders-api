@@ -10,8 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,26 +20,44 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@Table(name = "users")
 @Entity
-public class User {
+@Table(name = "user_orders", schema = "public")
+public class UserOrder {
 
     @EqualsAndHashCode.Include
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Email
     @Column(nullable = false)
-    private String username;
+    private Long idUser;
+
+    @Column(nullable = false)
+    private Long idStock;
+
+    @Column(nullable = false)
+    private String stockSymbol;
+
+    @Column(nullable = false)
+    private String stockName;
 
     @PositiveOrZero
     @Column(nullable = false)
-    private BigDecimal dollarBalance = new BigDecimal(10000);
+    private Long volume;
+
+    @PositiveOrZero
+    @Column(nullable = false)
+    private Long volumeRemaining;
+
+    @PositiveOrZero
+    @Column(nullable = false)
+    private BigDecimal price;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private int type;
+
+    @Column(nullable = false)
+    private int status = 0;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -54,12 +70,15 @@ public class User {
     @Version
     private Long version;
 
-    public void somaDollarBalance(BigDecimal valor) {
-        this.dollarBalance = this.dollarBalance.add(valor);
+    public void somaVolumeRemaining(Long volumeRemaining) {
+        this.volumeRemaining += volumeRemaining;
     }
 
-    public void subtraiDollarBalance(BigDecimal valor) {
-        this.dollarBalance = this.dollarBalance.subtract(valor);
+    public void subtraiVolumeRemaining(Long volumeRemaining) {
+        this.volumeRemaining -= volumeRemaining;
     }
 
+    public void fechaOrder() {
+        this.status = 1;
+    }
 }

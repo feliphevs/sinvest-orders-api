@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class UserStockBalancesPKId implements Serializable {
+public class UserStockBalancePKId implements Serializable {
 
-    private Long id_user;
-    private Long id_stock;
+    private Long idUser;
+    private Long idStock;
 
 }

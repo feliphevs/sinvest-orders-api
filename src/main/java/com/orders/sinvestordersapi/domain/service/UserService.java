@@ -4,12 +4,14 @@ import com.orders.sinvestordersapi.domain.exception.UserNaoEncontradoException;
 import com.orders.sinvestordersapi.domain.model.User;
 import com.orders.sinvestordersapi.domain.repository.UserRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CadastroUserService {
+public class UserService {
 
+    @Autowired
     private UserRepository userRepository;
 
     public User adicionar(User user) {

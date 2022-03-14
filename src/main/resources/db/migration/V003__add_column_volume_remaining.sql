@@ -1,0 +1,1 @@
+ALTER TABLE user_orders ADD volume_remaining bigint not null default 0;
