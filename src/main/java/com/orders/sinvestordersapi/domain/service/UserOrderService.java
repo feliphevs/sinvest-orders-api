@@ -149,12 +149,12 @@ public class UserOrderService {
     private boolean verificarSaldoDollar(Long idUser, Long volume, BigDecimal price) {
         User user = userService.buscarOuFalhar(idUser);
 
-        BigDecimal dollarBallance = user.getDollarBalance();
+        BigDecimal dollarBalance = user.getDollarBalance();
 
         BigDecimal volumeStock = new BigDecimal(volume);
         BigDecimal totalCompra = volumeStock.multiply(price);
 
-        BigDecimal dollarRestante = dollarBallance.subtract(totalCompra);
+        BigDecimal dollarRestante = dollarBalance.subtract(totalCompra);
 
         return dollarRestante.compareTo(BigDecimal.ZERO) >= 0;
     }
@@ -217,17 +217,7 @@ public class UserOrderService {
             orderVenda.subtraiVolumeRemaining(volumeCompra);
 
             // transferencia entre user stocks
-            if (userStockService.existsById(compradorStockId)) {
-                userStockComprador = userStockService.buscarOuFalhar(compradorStockId);
-            } else {
-                userStockComprador = new UserStockBalance();
-                userStockComprador.setIdUser(orderCompra.getIdUser());
-                userStockComprador.setIdStock(orderCompra.getIdStock());
-                userStockComprador.setStockSymbol(orderCompra.getStockSymbol());
-                userStockComprador.setStockName(orderCompra.getStockName());
-                userStockComprador.setVolume(0L);
-                userStockComprador = userStockService.adicionar(userStockComprador);
-            }
+            userStockComprador = buscarCompradorStockBalance(compradorStockId, orderCompra);
 
             userStockVendedor = userStockService.buscarOuFalhar(vendedorStockId);
 
@@ -238,11 +228,7 @@ public class UserOrderService {
             userStockService.adicionar(userStockVendedor);
 
             // transferencia entre users / dollares
-            BigDecimal valor = calcularPriceVolume(orderVenda.getPrice(), volumeVenda);
-            userComprador.subtraiDollarBalance(valor);
-            userVendedor.somaDollarBalance(valor);
-            userService.adicionar(userComprador);
-            userService.adicionar(userVendedor);
+            userDollarTransfer(orderVenda, volumeVenda, userComprador, userVendedor);
 
             // fechar userorder
             userOrderRepository.save(orderVenda);
@@ -258,17 +244,7 @@ public class UserOrderService {
             orderVenda.subtraiVolumeRemaining(volumeVenda);
 
             // transferencia entre user stocks
-            if (userStockService.existsById(compradorStockId)) {
-                userStockComprador = userStockService.buscarOuFalhar(compradorStockId);
-            } else {
-                userStockComprador = new UserStockBalance();
-                userStockComprador.setIdUser(orderCompra.getIdUser());
-                userStockComprador.setIdStock(orderCompra.getIdStock());
-                userStockComprador.setStockSymbol(orderCompra.getStockSymbol());
-                userStockComprador.setStockName(orderCompra.getStockName());
-                userStockComprador.setVolume(0L);
-                userStockComprador = userStockService.adicionar(userStockComprador);
-            }
+            userStockComprador = buscarCompradorStockBalance(compradorStockId, orderCompra);
 
             userStockVendedor = userStockService.buscarOuFalhar(vendedorStockId);
 
@@ -279,11 +255,7 @@ public class UserOrderService {
             userStockService.adicionar(userStockVendedor);
 
             // transferencia entre users / dollares
-            BigDecimal valor = calcularPriceVolume(orderVenda.getPrice(), volumeVenda);
-            userComprador.subtraiDollarBalance(valor);
-            userVendedor.somaDollarBalance(valor);
-            userService.adicionar(userComprador);
-            userService.adicionar(userVendedor);
+            userDollarTransfer(orderVenda, volumeVenda, userComprador, userVendedor);
 
             // fechar userorder
             userOrderRepository.save(orderCompra);
@@ -300,17 +272,7 @@ public class UserOrderService {
             orderVenda.subtraiVolumeRemaining(volumeCompra);
 
             // transferencia entre user stocks
-            if (userStockService.existsById(compradorStockId)) {
-                userStockComprador = userStockService.buscarOuFalhar(compradorStockId);
-            } else {
-                userStockComprador = new UserStockBalance();
-                userStockComprador.setIdUser(orderCompra.getIdUser());
-                userStockComprador.setIdStock(orderCompra.getIdStock());
-                userStockComprador.setStockSymbol(orderCompra.getStockSymbol());
-                userStockComprador.setStockName(orderCompra.getStockName());
-                userStockComprador.setVolume(0L);
-                userStockComprador = userStockService.adicionar(userStockComprador);
-            }
+            userStockComprador = buscarCompradorStockBalance(compradorStockId, orderCompra);
 
             userStockVendedor = userStockService.buscarOuFalhar(vendedorStockId);
 
@@ -321,11 +283,7 @@ public class UserOrderService {
             userStockService.adicionar(userStockVendedor);
 
             // transferencia entre users / dollares
-            BigDecimal valor = calcularPriceVolume(orderVenda.getPrice(), volumeVenda);
-            userComprador.subtraiDollarBalance(valor);
-            userVendedor.somaDollarBalance(valor);
-            userService.adicionar(userComprador);
-            userService.adicionar(userVendedor);
+            userDollarTransfer(orderVenda, volumeVenda, userComprador, userVendedor);
 
             // fechar userorder
             orderCompra.fechaOrder();
@@ -335,5 +293,28 @@ public class UserOrderService {
             // retorno 2 = fechamento de ambas as orders
             return 2;
         }
+    }
+
+    private UserStockBalance buscarCompradorStockBalance(UserStockBalancePKId compradorStockId, UserOrder orderCompra) {
+        UserStockBalance userStockComprador;
+        if (userStockService.existsById(compradorStockId)) {
+            return userStockService.buscarOuFalhar(compradorStockId);
+        } else {
+            userStockComprador = new UserStockBalance();
+            userStockComprador.setIdUser(orderCompra.getIdUser());
+            userStockComprador.setIdStock(orderCompra.getIdStock());
+            userStockComprador.setStockSymbol(orderCompra.getStockSymbol());
+            userStockComprador.setStockName(orderCompra.getStockName());
+            userStockComprador.setVolume(0L);
+            return userStockService.adicionar(userStockComprador);
+        }
+    }
+
+    private void userDollarTransfer(UserOrder orderVenda, Long volumeVenda, User userComprador, User userVendedor) {
+        BigDecimal valor = calcularPriceVolume(orderVenda.getPrice(), volumeVenda);
+        userComprador.subtraiDollarBalance(valor);
+        userVendedor.somaDollarBalance(valor);
+        userService.adicionar(userComprador);
+        userService.adicionar(userVendedor);
     }
 }
