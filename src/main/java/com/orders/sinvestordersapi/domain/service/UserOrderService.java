@@ -26,7 +26,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class UserOrderService {
 
-    private static final String URL_STOCKS = "http://apistocks:8082/stocks/";
+    private static final String URL_STOCKS = "http://localhost:8082/stocks/updateaskbid/";
 
     @Autowired
     private UserOrderRepository userOrderRepository;
@@ -45,77 +45,86 @@ public class UserOrderService {
         int type = userOrder.getType();
         Long volume = userOrder.getVolume();
 
-        // fecha compra = 0
-        // fecha venda = 1
-        // fecha ambas = 2
-        Integer fechaOrder;
-
         // compra = 0
-        // venda = 1
-        switch (type) {
-            // compra
-            case 0:
-                if (!verificarSaldoDollar(idUser, volume, price)) {
-                    throw new DollarInsuficienteException();
-                }
-
-                UserOrder orderCompra = userOrderRepository.save(userOrder);
-                atualizaAskBidStockApi(URL_STOCKS, userToken, idStock);
-                List<UserOrder> listaVendas = userOrderRepository.matchVenda(idUser, idStock, price);
-
-                if (listaVendas != null) {
-
-                    for (UserOrder venda : listaVendas) {
-                        fechaOrder = transferencias(orderCompra, venda);
-
-                        if (fechaOrder == 0 || fechaOrder == 2) {
-                            orderCompra = buscarOuFalhar(orderCompra.getId());
-                            return orderCompra;
-                        }
-
-                    }
-
-                    orderCompra = buscarOuFalhar(orderCompra.getId());
-                    return orderCompra;
-
-                } else {
-                    return orderCompra;
-                }
-
-                // venda
-            case 1:
-                UserStockBalancePKId userStockVendedorId = new UserStockBalancePKId(idUser, idStock);
-                if (!verificarSaldoStock(userStockVendedorId, volume)) {
-                    throw new StockInsuficienteException();
-                }
-
-                UserOrder orderVenda = userOrderRepository.save(userOrder);
-                atualizaAskBidStockApi(URL_STOCKS, userToken, idStock);
-                List<UserOrder> listaCompras = userOrderRepository.matchCompra(idUser, idStock, price);
-
-                if (listaCompras != null) {
-
-                    for (UserOrder compra : listaCompras) {
-                        fechaOrder = transferencias(compra, orderVenda);
-
-                        if (fechaOrder == 1 || fechaOrder == 2) {
-                            orderVenda = buscarOuFalhar(orderVenda.getId());
-                            return orderVenda;
-                        }
-                    }
-
-                    orderVenda = buscarOuFalhar(orderVenda.getId());
-                    return orderVenda;
-
-                } else {
-                    return orderVenda;
-                }
-
-            default:
-                UserOrder userOrderSalva = userOrderRepository.save(userOrder);
-                return userOrderSalva;
+        if (type == 0) {
+            processarCompra(userOrder, userToken, idUser, idStock, volume, price);
         }
 
+        // venda = 1
+        if (type == 1) {
+            processarVenda(userOrder, userToken, idUser, idStock, volume, price);
+        }
+
+        return userOrderRepository.save(userOrder);
+
+    }
+
+    // fecha compra = 0
+    // fecha venda = 1
+    // fecha ambas = 2
+    private UserOrder processarCompra(UserOrder userOrder, String userToken, Long idUser, Long idStock, Long volume,
+            BigDecimal price) {
+        if (!verificarSaldoDollar(idUser, volume, price)) {
+            throw new DollarInsuficienteException();
+        }
+
+        Integer fechaOrder;
+        UserOrder orderCompra = userOrderRepository.save(userOrder);
+        atualizaAskBidStockApi(URL_STOCKS, userToken, idStock);
+        List<UserOrder> listaVendas = userOrderRepository.matchVenda(idUser, idStock, price);
+
+        if (listaVendas != null) {
+
+            for (UserOrder venda : listaVendas) {
+                fechaOrder = transferencias(orderCompra, venda);
+
+                if (fechaOrder == 0 || fechaOrder == 2) {
+                    orderCompra = buscarOuFalhar(orderCompra.getId());
+                    return orderCompra;
+                }
+
+            }
+
+            orderCompra = buscarOuFalhar(orderCompra.getId());
+            return orderCompra;
+
+        } else {
+            return orderCompra;
+        }
+    }
+
+    // fecha compra = 0
+    // fecha venda = 1
+    // fecha ambas = 2
+    private UserOrder processarVenda(UserOrder userOrder, String userToken, Long idUser, Long idStock, Long volume,
+            BigDecimal price) {
+        UserStockBalancePKId userStockVendedorId = new UserStockBalancePKId(idUser, idStock);
+        if (!verificarSaldoStock(userStockVendedorId, volume)) {
+            throw new StockInsuficienteException();
+        }
+
+        Integer fechaOrder;
+        UserOrder orderVenda = userOrderRepository.save(userOrder);
+        atualizaAskBidStockApi(URL_STOCKS, userToken, idStock);
+        List<UserOrder> listaCompras = userOrderRepository.matchCompra(idUser, idStock, price);
+
+        if (listaCompras != null) {
+
+            for (UserOrder compra : listaCompras) {
+                fechaOrder = transferencias(compra, orderVenda);
+
+                if (fechaOrder == 1 || fechaOrder == 2) {
+                    orderVenda = buscarOuFalhar(orderVenda.getId());
+                    return orderVenda;
+                }
+            }
+
+            orderVenda = buscarOuFalhar(orderVenda.getId());
+            return orderVenda;
+
+        } else {
+            return orderVenda;
+        }
     }
 
     public void excluir(Long userOrderId) {
@@ -179,7 +188,7 @@ public class UserOrderService {
         HttpEntity<StockDto> requestEntity = new HttpEntity<>(stockModel, header);
 
         RestTemplate template = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
-        template.patchForObject(uri, requestEntity, StockDto.class);
+        template.put(uri, requestEntity);
     }
 
     // retorno 0 = fechamento de order de compra

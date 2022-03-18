@@ -1,6 +1,6 @@
 package com.orders.sinvestordersapi.domain.exception;
 
-public class UserNaoEncontradoException extends EntidadeNaoEncontradaException {
+public class UserNaoEncontradoException extends NegocioException {
 
     public UserNaoEncontradoException(String mensagem) {
         super(mensagem);

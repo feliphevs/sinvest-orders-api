@@ -1,4 +1,4 @@
-package com.orders.sinvestordersapi.api.dto.User;
+package com.orders.sinvestordersapi.api.dto.user;
 
 import javax.validation.constraints.Email;
 

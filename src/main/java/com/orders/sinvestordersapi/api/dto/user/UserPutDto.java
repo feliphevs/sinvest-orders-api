@@ -1,17 +1,18 @@
-package com.orders.sinvestordersapi.api.dto.User;
+package com.orders.sinvestordersapi.api.dto.user;
 
 import java.math.BigDecimal;
+
+import javax.validation.constraints.Email;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRespostaDto {
+public class UserPutDto {
 
-    private Long id;
+    @Email
     private String username;
     private BigDecimal dollarBalance;
     private boolean enabled;
-
 }

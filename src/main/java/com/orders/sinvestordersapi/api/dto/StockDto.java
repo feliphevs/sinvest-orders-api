@@ -1,9 +1,6 @@
 package com.orders.sinvestordersapi.api.dto;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-
-import org.hibernate.annotations.UpdateTimestamp;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,8 +20,5 @@ public class StockDto {
     private BigDecimal askMax;
     private BigDecimal bidMin;
     private BigDecimal bidMax;
-
-    @UpdateTimestamp
-    private Timestamp updatedOn;
 
 }

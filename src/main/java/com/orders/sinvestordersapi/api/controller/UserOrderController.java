@@ -4,8 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import com.orders.sinvestordersapi.api.dto.UserOrder.UserOrderDto;
-import com.orders.sinvestordersapi.api.dto.UserOrder.UserOrderRespostaDto;
+import com.orders.sinvestordersapi.api.dto.userorder.UserOrderDto;
+import com.orders.sinvestordersapi.api.dto.userorder.UserOrderRespostaDto;
 import com.orders.sinvestordersapi.core.ModelMapperUtils;
 import com.orders.sinvestordersapi.domain.model.UserOrder;
 import com.orders.sinvestordersapi.domain.repository.UserOrderRepository;
@@ -14,7 +14,7 @@ import com.orders.sinvestordersapi.domain.service.UserOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/userorders")
 public class UserOrderController {

@@ -2,7 +2,6 @@ package com.orders.sinvestordersapi.core;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -56,7 +55,7 @@ public class ModelMapperUtils {
     public static <D, T> List<D> mapAll(final Collection<T> entityList, Class<D> outCLass) {
         return entityList.stream()
                 .map(entity -> map(entity, outCLass))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

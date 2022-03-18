@@ -43,16 +43,16 @@ public interface UserOrderRepository extends JpaRepository<UserOrder, Long> {
     @Query("from UserOrder where id_user = :idUser")
     List<UserOrder> listarPorIdUser(Long idUser);
 
-    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 0 AND o.status = 0")
+    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 0 AND o.status = 0 ORDER BY o.updatedOn DESC")
     List<UserOrder> comprasAbertasByUser(String email);
 
-    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 0 AND o.status = 1")
+    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 0 AND o.status = 1 ORDER BY o.updatedOn DESC")
     List<UserOrder> comprasFechadasByUser(String email);
 
-    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 1 AND o.status = 0")
+    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 1 AND o.status = 0 ORDER BY o.updatedOn DESC")
     List<UserOrder> vendasAbertasByUser(String email);
 
-    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 1 AND o.status = 1")
+    @Query("from UserOrder o inner join User u on o.idUser = u.id AND u.username = :email AND o.type = 1 AND o.status = 1 ORDER BY o.updatedOn DESC")
     List<UserOrder> vendasFechadasByUser(String email);
 
 }

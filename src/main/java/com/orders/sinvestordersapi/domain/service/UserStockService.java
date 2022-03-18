@@ -20,7 +20,7 @@ public class UserStockService {
 
     public UserStockBalance buscarOuFalhar(UserStockBalancePKId userStockId) {
         return userStockRepository.findById(userStockId)
-                .orElseThrow(() -> new UserStockBalanceNaoEncontradaException());
+                .orElseThrow(UserStockBalanceNaoEncontradaException::new);
     }
 
     public boolean existsById(UserStockBalancePKId userStockId) {
