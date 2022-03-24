@@ -146,7 +146,7 @@ public class UserOrderService {
         return userOrderRepository.save(order);
     }
 
-    private boolean verificarSaldoDollar(Long idUser, Long volume, BigDecimal price) {
+    public boolean verificarSaldoDollar(Long idUser, Long volume, BigDecimal price) {
         User user = userService.buscarOuFalhar(idUser);
 
         BigDecimal dollarBalance = user.getDollarBalance();
@@ -159,14 +159,14 @@ public class UserOrderService {
         return dollarRestante.compareTo(BigDecimal.ZERO) >= 0;
     }
 
-    private boolean verificarSaldoStock(UserStockBalancePKId userStockId, Long volume) {
+    public boolean verificarSaldoStock(UserStockBalancePKId userStockId, Long volume) {
         UserStockBalance userStockVendedor = userStockService.buscarOuFalhar(userStockId);
         Long volumeStock = userStockVendedor.getVolume();
 
         return volume <= volumeStock;
     }
 
-    private BigDecimal calcularPriceVolume(BigDecimal price, Long volume) {
+    public BigDecimal calcularPriceVolume(BigDecimal price, Long volume) {
         BigDecimal volumeStock = new BigDecimal(volume);
         return volumeStock.multiply(price);
     }
